@@ -9,6 +9,8 @@ session = requests.Session()
 
 def ncov_report(username, password, name, is_useold):
     print('登录北邮 nCoV 上报网站')
+    print('username == ' + str(username))
+    print('password == ' + str(password))
     login_res = session.post(
         LOGIN_API,
         data={'username': username, 'password': password, },
@@ -24,31 +26,7 @@ def ncov_report(username, password, name, is_useold):
         raise RuntimeError('get_res 状态码不是 200')
    
     post_data = json.loads(copy.deepcopy(INFO).replace("\n", "").replace(" ", ""))
-    if is_useold:
-        try:
-            for k, v in old_data.items():
-                if k in post_data:
-                    post_data[k] = v
-            geo = json.loads(old_data['geo_api_info'])
-
-            province = geo['addressComponent']['province']
-            city = geo['addressComponent']['city']
-            if geo['addressComponent']['city'].strip() == "" and len(re.findall(r'北京市|上海市|重庆市|天津市', province)) != 0:
-                city = geo['addressComponent']['province']
-            area = province + " " + city + " " + geo['addressComponent']['district']
-            address = geo['formattedAddress']
-            post_data['province'] = province
-            post_data['city'] = city
-            post_data['area'] = area
-            post_data['address'] = address
-
-            # 强行覆盖一些字段
-            post_data['ismoved'] = 0  # 是否移动了位置？否
-            post_data['bztcyy'] = ''  # 不在同城原因？空
-            post_data['sfsfbh'] = 0  # 是否省份不合？否
-        except:
-            print("加载昨日数据错误，采用固定数据")
-            post_data = json.loads(copy.deepcopy(INFO).replace("\n", "").replace(" ", ""))
+    
     report_res = session.post(
         REPORT_API,
         data=post_data,
