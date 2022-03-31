@@ -22,10 +22,7 @@ def ncov_report(username, password, name, is_useold):
     )
     if get_res.status_code != 200:
         raise RuntimeError('get_res 状态码不是 200')
-    try:
-        old_data = json.loads('{' + re.search(r'(?<=oldInfo: {).+(?=})', get_res.text)[0] + '}')
-    except:
-        raise RuntimeError('未获取到昨日打卡数据，请今日手动打卡明日再执行脚本或使用固定打卡数据')
+   
     post_data = json.loads(copy.deepcopy(INFO).replace("\n", "").replace(" ", ""))
     if is_useold:
         try:
